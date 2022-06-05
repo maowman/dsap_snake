@@ -51,6 +51,7 @@ enum class Mode {
 
 int main() {
     char ch;
+    std::cout<<"我的超人"<<std::endl;
     std::cout << "Type (A, B or C): "; 
     std::cin >> ch;
     std::cout << "Mode (0, 1 or 2): ";
