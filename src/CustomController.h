@@ -1,7 +1,6 @@
 #ifndef DSAP_CUSTOM_CONTROLLER_H
 #define DSAP_CUSTOM_CONTROLLER_H
 
-#include <iostream>
 
 #include "ISnakeController.h"
 #include "DirectionType.h"
@@ -9,10 +8,7 @@
 class CustomController : public ISnakeController
 {
 public:
-    DirectionType NextDirection(const Game &, size_t) override
-    {
-        return DirectionType::kRight;
-    }
+    DirectionType NextDirection(const Game &, size_t) override;
 };
 
 #endif // DSAP_CUSTOM_CONTROLLER_H
