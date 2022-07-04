@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cmath>
 
-inline float getLength(Position p)
+inline float getLength(Position &&p)
 {
     return std::abs(std::pow(p.x, 2) + std::pow(p.y, 2));
 }
@@ -25,7 +25,11 @@ inline float cross(Position a, Position b)
 float getWeight(Position snakePosition, Position snakeDirection, Position foodPosition)
 {
     float distance = getLength(snakePosition - foodPosition);
-    float deltaTheta = std::asin(cross(snakeDirection, foodPosition - snakePosition) / distance);
+    float deltaTheta = std::acos(dot(snakeDirection, foodPosition - snakePosition) / distance);
+    if (cross(snakeDirection, foodPosition - snakePosition) < 0)
+    {
+        deltaTheta *= 1;
+    }
     if (abs(deltaTheta) > pi / 2)
     {
         return 0;
@@ -36,9 +40,38 @@ float getWeight(Position snakePosition, Position snakeDirection, Position foodPo
 DirectionType
 CustomController::NextDirection(const Game &game, size_t id)
 {
-    float kP = 1, kD = 0, kW = -50, dangerDistance = 200;
-    // std::cout << "gamemode: " << id << std::endl;
     auto self = game.Snakes().at(id);
+    Position headPos = self.Head();
+    if (game.Snakes().size() == 1)
+    {
+        if ((game.FieldWidth() - headPos.x) < game.kSnakeRadius + 300)
+        {
+            return DirectionType::kLeft;
+        }
+        // return DirectionType::kForward;
+
+        //如果撞到右邊
+        if ((headPos.x) < game.kSnakeRadius + 300)
+        {
+
+            return DirectionType::kLeft;
+        }
+
+        //撞到上界
+        if ((headPos.y) < game.kSnakeRadius + 300)
+        {
+            return DirectionType::kLeft;
+        }
+
+        if ((game.FieldHeight() - headPos.y) < game.kSnakeRadius + 300)
+        {
+
+            return DirectionType::kLeft;
+        }
+    }
+    float kP = 1, kD = 0, kW = -70, dangerDistance = 200000, kS = 0.5;
+    // std::cout << "gamemode: " << id << std::endl;
+
     double error = 0, lastError = 0;
     for (auto food : game.Foods())
     {
@@ -53,7 +86,25 @@ CustomController::NextDirection(const Game &game, size_t id)
     {
         if (getLength(wall - self.Head()) < dangerDistance)
         {
+            // std::cout<<"In danger"<<std::endl;
             error += kW * getWeight(self.Head(), self.Forward(), wall);
+        }
+    }
+    for (size_t i = 1; i < game.Snakes().size(); i++)
+    {
+        if (i != id)
+        {
+            try
+            {
+                for (auto body : game.Snakes().at(i).Body())
+                {
+                    //error += kS * getWeight(self.Head(), self.Forward(), body);
+                }
+            }
+            catch (...)
+            {
+                ;
+            }
         }
     }
 
